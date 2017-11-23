@@ -5,8 +5,83 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ODR"
         mc:Ignorable="d"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="Optical Digit Recognition" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+    <Window.Resources>
+        <local:FontSizeConverter x:Key="fontSizeConverter"/>
+    </Window.Resources>
+    <TabControl>
+        <TabItem Header="Обучение">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="207*"/>
+                    <ColumnDefinition Width="247*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="131*"/>
+                </Grid.RowDefinitions>
+                <Button Content="Обучить" Grid.Column="2" Margin="5"/>
+                <TabControl Grid.Row="1" Grid.ColumnSpan="3" AlternationCount="99">
+                    <TabControl.Resources>
+                        <CollectionViewSource x:Key="DigitsCollection" Source="{Binding Images, Mode=OneWay}"/>
+                        <DataTemplate DataType="{x:Type local:ImageCollection}">
+                            <ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Margin="1" Grid.Row="1" BorderBrush="#FFABADB3" BorderThickness="1" VerticalAlignment="Bottom">
+                                                <Image Source="{Binding}" Stretch="None"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </DataTemplate>
+                    </TabControl.Resources>
+                    <TabControl.ItemsSource>
+                        <CompositeCollection>
+                            <CollectionContainer Collection="{Binding Source={StaticResource DigitsCollection}}"/>
+                            <TabItem Header="Добавить">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="1*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Button Content="Добавить MNIST" Click="AddMNIST" Margin="5" Grid.ColumnSpan="2"/>
+                                    <Border Margin="5" Grid.Row="1" BorderBrush="#FFABADB3" BorderThickness="1">
+                                        <Canvas x:Name="AddCanvas" ClipToBounds="True" MouseDown="AddCanvas_MouseDown" MouseMove="AddCanvas_MouseMove" MouseUp="AddCanvas_MouseUp" Background="White"/>
+                                    </Border>
+                                    <Grid Margin="5" Grid.Column="1" Grid.Row="1">
+                                        <TextBox x:Name="AddDigit" Text="0" MaxLength="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight, Converter={StaticResource fontSizeConverter}}"/>
+                                    </Grid>
+                                    <Button Content="Очистить" Click="AddCanvas_CleanClick" Grid.Column="0" Margin="5" Grid.Row="2"/>
+                                    <Button Content="Добавить" Click="AddCanvas_AddClick" Grid.Column="1" Margin="5" Grid.Row="2"/>
+                                </Grid>
+                            </TabItem>
+                        </CompositeCollection>
+                    </TabControl.ItemsSource>
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource AncestorType=TabItem}}"/>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                </TabControl>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Распознавание">
+
+        </TabItem>
+    </TabControl>
 </Window>
