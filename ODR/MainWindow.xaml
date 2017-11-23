@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ODR"
         mc:Ignorable="d"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Title="Optical Digit Recognition" Height="350" Width="600" MinHeight="350" MinWidth="600">
+        Title="Optical Digit Recognition" Height="410" Width="600" MinHeight="410" MinWidth="600">
     <Window.Resources>
         <local:FontSizeConverter x:Key="fontSizeConverter"/>
     </Window.Resources>
@@ -22,7 +22,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
-                <Button Content="Обучить" Grid.Column="2" Margin="5"/>
+                <Button Content="Обучить" Click="Learn_Click" Grid.Column="2" Margin="5"/>
                 <TabControl Grid.Row="1" Grid.ColumnSpan="3" AlternationCount="{Binding Images.Count, Mode=OneWay}">
                     <TabControl.Resources>
                         <CollectionViewSource x:Key="DigitsCollection" Source="{Binding Images, Mode=OneWay}"/>

@@ -1,8 +1,12 @@
-﻿using Encog.Util.DownSample;
+﻿using Encog.ML.Data.Basic;
+using Encog.ML.Data.Image;
+using Encog.ML.Train.Strategy;
+using Encog.Neural.Networks;
+using Encog.Neural.Networks.Training.Propagation.Resilient;
+using Encog.Util.Simple;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -20,11 +24,13 @@ namespace ODR
     {
         public const int DIGITS_COUNT = 10;
         public const int MNIST_LIMIT = 100;
-        public const int DIGIT_HEIGHT = 7;
-        public const int DIGIT_WIDTH = 5;
+        public const int DIGIT_HEIGHT = 8;
+        public const int DIGIT_WIDTH = 6;
 
         public ObservableCollection<ImageCollection> Images { get; set; } = new ObservableCollection<ImageCollection>();
         public ObservableCollection<ResultObject> Results { get; set; } = new ObservableCollection<ResultObject>();
+
+        private BasicNetwork network;
 
         public MainWindow()
         {
@@ -233,6 +239,28 @@ namespace ODR
                 IntPtr.Zero,
                 Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
+
+            if (network == null)
+            {
+                return;
+            }
+
+            var input = new ImageMLData(bitmap);
+            input.Downsample(downsample, false, DIGIT_HEIGHT, DIGIT_WIDTH, 1, -1);
+
+            int winner = network.Winner(input);
+            RecDigit.Text = winner.ToString();
+
+            var data = network.Compute(input);
+
+            for (var i = 0; i < DIGITS_COUNT; ++i)
+            {
+                Results[i] = new ResultObject
+                {
+                    Char = i.ToString(),
+                    Result = (data[i] + 1) / 2
+                };
+            }
         }
 
         private void RecCanvas_MouseMove(object sender, MouseEventArgs e)
@@ -254,7 +282,7 @@ namespace ODR
             if (color != null)
             {
                 Polyline polyLine;
-                if (!recCanvas_drawing)
+                if (!recCanvas_drawing || RecCanvas.Children.Count == 0)
                 {
                     polyLine = new Polyline
                     {
@@ -274,6 +302,51 @@ namespace ODR
         private void RecCanvas_CleanClick(object sender, RoutedEventArgs e)
         {
             RecCanvas.Children.Clear();
+        }
+
+        private void Learn_Click(object sender, RoutedEventArgs e)
+        {
+            var downsample = new Downsampler();
+            var training = new ImageMLDataSet(downsample, true, 1, -1);
+
+            for (var i = 0; i < Images.Count; ++i)
+            {
+                var ideal = new BasicMLData(DIGITS_COUNT);
+                for (int j = 0; j < DIGITS_COUNT; ++j)
+                {
+                    if (j == i)
+                    {
+                        ideal[j] = 1;
+                    }
+                    else
+                    {
+                        ideal[j] = -1;
+                    }
+                }
+                foreach (var img in Images[i])
+                {
+                    MemoryStream stream = new MemoryStream();
+                    BitmapEncoder encoder = new BmpBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(img));
+                    encoder.Save(stream);
+
+                    var bitmap = new Drawing.Bitmap(stream);
+                    var data = new ImageMLData(bitmap);
+                    training.Add(data, ideal);
+                }
+            }
+
+            training.Downsample(DIGIT_HEIGHT, DIGIT_WIDTH);
+            Console.WriteLine("OK");
+
+            network = EncogUtility.SimpleFeedForward(training.InputSize, 35, 0, training.IdealSize, true);
+
+            double strategyError = 0.01;
+            int strategyCycles = 2000;
+
+            var train = new ResilientPropagation(network, training);
+            //train.AddStrategy(new ResetStrategy(strategyError, strategyCycles));
+            EncogUtility.TrainDialog(train, network, training);
         }
     }
 }
