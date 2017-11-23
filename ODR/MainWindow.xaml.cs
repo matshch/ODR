@@ -86,7 +86,7 @@ namespace ODR
                     {
                         Stroke = color,
                         StrokeLineJoin = PenLineJoin.Round,
-                        StrokeThickness = 15
+                        StrokeThickness = 30
                     };
                     AddCanvas.Children.Add(polyLine);
                     addCanvas_drawing = true;
@@ -291,7 +291,7 @@ namespace ODR
                     {
                         Stroke = color,
                         StrokeLineJoin = PenLineJoin.Round,
-                        StrokeThickness = 15
+                        StrokeThickness = 30
                     };
                     RecCanvas.Children.Add(polyLine);
                     recCanvas_drawing = true;
