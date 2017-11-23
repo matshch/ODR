@@ -14,7 +14,7 @@
         <TabItem Header="Обучение">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -22,6 +22,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
+                <Button Content="Загрузить" Click="Load_Click" Grid.Column="0" Margin="5"/>
                 <Button Content="Обучить" Click="Learn_Click" Grid.Column="2" Margin="5"/>
                 <TabControl Grid.Row="1" Grid.ColumnSpan="3" AlternationCount="{Binding Images.Count, Mode=OneWay}">
                     <TabControl.Resources>

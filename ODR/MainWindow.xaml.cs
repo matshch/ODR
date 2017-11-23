@@ -352,5 +352,10 @@ namespace ODR
 
             EncogDirectoryPersistence.SaveObject(new FileInfo("network.eg"), network);
         }
+
+        private void Load_Click(object sender, RoutedEventArgs e)
+        {
+            network = (BasicNetwork)EncogDirectoryPersistence.LoadObject(new FileInfo("network.eg"));
+        }
     }
 }
