@@ -285,6 +285,10 @@ namespace ODR
                 }
             }
 
+            if (total == 0)
+            {
+                total = 1;
+            }
             CurrentRed = redTotal / total;
             CurrentGreen = greenTotal / total;
             CurrentBlue = blueTotal / total;
