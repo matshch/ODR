@@ -27,6 +27,8 @@ namespace ODR
         public const int DIGIT_HEIGHT = 8;
         public const int DIGIT_WIDTH = 6;
 
+        private const string APP_NAME = "Optical Digit Recognition";
+
         public ObservableCollection<ImageCollection> Images { get; set; } = new ObservableCollection<ImageCollection>();
         public ObservableCollection<ResultObject> Results { get; set; } = new ObservableCollection<ResultObject>();
 
@@ -106,7 +108,7 @@ namespace ODR
             {
                 MessageBox.Show(this,
                     "Введите одну цифру.",
-                    Title,
+                    APP_NAME,
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -116,7 +118,7 @@ namespace ODR
             {
                 MessageBox.Show(this,
                     "Введите цифру.",
-                    Title,
+                    APP_NAME,
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -140,7 +142,7 @@ namespace ODR
         {
             var full = MessageBox.Show(this,
                     "Вы хотите загрузить MNIST целиком? Это займёт некоторое время.\nЕсли вы выберите \"Нет\", то будет загружена лишь часть набора данных.",
-                    Title,
+                    APP_NAME,
                     MessageBoxButton.YesNoCancel,
                     MessageBoxImage.Question);
             bool fullLoad;

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ODR"
         mc:Ignorable="d"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Title="Optical Digit Recognition" Height="410" Width="600" MinHeight="410" MinWidth="600">
+        Title="Optical Digit Recognition — Лещев Артем, ИУ5-74" Height="410" Width="600" MinHeight="410" MinWidth="600">
     <Window.Resources>
         <local:FontSizeConverter x:Key="fontSizeConverter"/>
     </Window.Resources>
