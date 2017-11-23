@@ -1,13 +1,17 @@
-﻿using System;
+﻿using Encog.Util.DownSample;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
 namespace ODR
@@ -16,14 +20,21 @@ namespace ODR
     {
         public const int DIGITS_COUNT = 10;
         public const int MNIST_LIMIT = 100;
+        public const int DIGIT_HEIGHT = 7;
+        public const int DIGIT_WIDTH = 5;
 
         public ObservableCollection<ImageCollection> Images { get; set; } = new ObservableCollection<ImageCollection>();
+        public ObservableCollection<ResultObject> Results { get; set; } = new ObservableCollection<ResultObject>();
 
         public MainWindow()
         {
             for (var i = 0; i < DIGITS_COUNT; ++i)
             {
                 Images.Insert(i, new ImageCollection());
+                Results.Insert(i, new ResultObject {
+                    Char = i.ToString(),
+                    Result = 0
+                });
             }
             InitializeComponent();
         }
@@ -51,6 +62,10 @@ namespace ODR
             } else if (e.RightButton == MouseButtonState.Pressed)
             {
                 color = Brushes.White;
+            }
+            else
+            {
+                return;
             }
 
             if (color != null)
@@ -104,6 +119,10 @@ namespace ODR
             var index = text[0] - '0';
 
             var size = new Size(AddCanvas.ActualWidth, AddCanvas.ActualHeight);
+            // Measure and arrange the surface
+            // VERY IMPORTANT
+            AddCanvas.Measure(size);
+            AddCanvas.Arrange(new Rect(size));
             var renderBitmap = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96d, 96d, PixelFormats.Pbgra32);
             renderBitmap.Render(AddCanvas);
 
@@ -164,6 +183,97 @@ namespace ODR
                     collection.Add(img);
                 }
             }
+        }
+
+        Point recCanvas_currentPoint = new Point();
+        bool recCanvas_drawing = false;
+
+        private void RecCanvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+                recCanvas_currentPoint = e.GetPosition(RecCanvas);
+        }
+
+        private void RecCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            recCanvas_drawing = false;
+
+            var size = new Size(RecCanvas.ActualWidth, RecCanvas.ActualHeight);
+            // Measure and arrange the surface
+            // VERY IMPORTANT
+            RecCanvas.Measure(size);
+            RecCanvas.Arrange(new Rect(size));
+            var renderBitmap = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96d, 96d, PixelFormats.Pbgra32);
+            renderBitmap.Render(RecCanvas);
+
+            MemoryStream stream = new MemoryStream();
+            BitmapEncoder encoder = new BmpBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+            encoder.Save(stream);
+
+            var bitmap = new Drawing.Bitmap(stream);
+
+            var downsample = new Downsampler();
+            var result = downsample.DownSample(bitmap, DIGIT_HEIGHT, DIGIT_WIDTH);
+            var image = new Drawing.Bitmap(DIGIT_WIDTH, DIGIT_HEIGHT);
+            for (var i = 0; i < DIGIT_HEIGHT; ++i)
+            {
+                for (var j = 0; j < DIGIT_WIDTH; ++j)
+                {
+                    image.SetPixel(j, i, Drawing.Color.FromArgb(
+                        255,
+                        (int)result[i * DIGIT_WIDTH + j],
+                        (int)result[i * DIGIT_WIDTH + j],
+                        (int)result[i * DIGIT_WIDTH + j]
+                        ));
+                }
+            }
+            RecComp.Source = Imaging.CreateBitmapSourceFromHBitmap(
+                image.GetHbitmap(),
+                IntPtr.Zero,
+                Int32Rect.Empty,
+                BitmapSizeOptions.FromEmptyOptions());
+        }
+
+        private void RecCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            SolidColorBrush color = null;
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                color = Brushes.Black;
+            }
+            else if (e.RightButton == MouseButtonState.Pressed)
+            {
+                color = Brushes.White;
+            }
+            else
+            {
+                return;
+            }
+
+            if (color != null)
+            {
+                Polyline polyLine;
+                if (!recCanvas_drawing)
+                {
+                    polyLine = new Polyline
+                    {
+                        Stroke = color,
+                        StrokeLineJoin = PenLineJoin.Round,
+                        StrokeThickness = 15
+                    };
+                    RecCanvas.Children.Add(polyLine);
+                    recCanvas_drawing = true;
+                }
+                polyLine = (Polyline)RecCanvas.Children[RecCanvas.Children.Count - 1];
+                recCanvas_currentPoint = e.GetPosition(RecCanvas);
+                polyLine.Points.Add(recCanvas_currentPoint);
+            }
+        }
+
+        private void RecCanvas_CleanClick(object sender, RoutedEventArgs e)
+        {
+            RecCanvas.Children.Clear();
         }
     }
 }

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ODR"
         mc:Ignorable="d"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Title="Optical Digit Recognition" Height="350" Width="525">
+        Title="Optical Digit Recognition" Height="350" Width="600" MinHeight="350" MinWidth="600">
     <Window.Resources>
         <local:FontSizeConverter x:Key="fontSizeConverter"/>
     </Window.Resources>
@@ -81,7 +81,58 @@
             </Grid>
         </TabItem>
         <TabItem Header="Распознавание">
-            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Область рисования" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                <Border Margin="5" BorderBrush="#FFABADB3" BorderThickness="1" Grid.Row="1">
+                    <Canvas x:Name="RecCanvas" ClipToBounds="True" MouseDown="RecCanvas_MouseDown" MouseMove="RecCanvas_MouseMove" MouseUp="RecCanvas_MouseUp" Background="White"/>
+                </Border>
+                <Button Content="Очистить" Click="RecCanvas_CleanClick" Grid.Column="0" Margin="5" Grid.Row="2"/>
+                <Label Content="Сжатый символ" HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Bottom"/>
+                <Border Margin="5" Grid.Column="1" BorderBrush="#FFABADB3" BorderThickness="1" Grid.Row="1">
+                    <Image x:Name="RecComp" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                </Border>
+                <Label Content="Распознанный символ" HorizontalAlignment="Center" Grid.Column="2" VerticalAlignment="Bottom"/>
+                <TextBlock x:Name="RecDigit" Text="?" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=ActualHeight, Converter={StaticResource fontSizeConverter}}" Margin="5" Grid.Row="1"/>
+                <Label Content="Выходы сети" HorizontalAlignment="Center" Grid.Column="3" VerticalAlignment="Bottom"/>
+                <ListView Grid.Column="3" Grid.Row="1" ItemsSource="{Binding Results, Mode=OneWay}" AlternationCount="{Binding Results.Count, Mode=OneWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <ProgressBar Minimum="0" Maximum="1" Value="{Binding Result}"/>
+                                <Label HorizontalAlignment="Center">
+                                    <Label.Content>
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="{}{0} ({1:P})">
+                                                    <Binding Path="Char"/>
+                                                    <Binding Path="Result"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </Label.Content>
+                                </Label>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Padding" Value="0" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+            </Grid>
         </TabItem>
     </TabControl>
 </Window>
