@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace ODR
 {
-    public class ImageCollection : ObservableCollection<ImageSource>
+    public class ImageCollection : ObservableCollection<BitmapSource>
     {
     }
 }
