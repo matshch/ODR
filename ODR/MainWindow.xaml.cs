@@ -3,6 +3,7 @@ using Encog.ML.Data.Image;
 using Encog.ML.Train.Strategy;
 using Encog.Neural.Networks;
 using Encog.Neural.Networks.Training.Propagation.Resilient;
+using Encog.Persist;
 using Encog.Util.Simple;
 using System;
 using System.Collections.Generic;
@@ -339,7 +340,6 @@ namespace ODR
             }
 
             training.Downsample(DIGIT_HEIGHT, DIGIT_WIDTH);
-            Console.WriteLine("OK");
 
             network = EncogUtility.SimpleFeedForward(training.InputSize, 35, 0, training.IdealSize, true);
 
@@ -349,6 +349,8 @@ namespace ODR
             var train = new ResilientPropagation(network, training);
             //train.AddStrategy(new ResetStrategy(strategyError, strategyCycles));
             EncogUtility.TrainDialog(train, network, training);
+
+            EncogDirectoryPersistence.SaveObject(new FileInfo("network.eg"), network);
         }
     }
 }
