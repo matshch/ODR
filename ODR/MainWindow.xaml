@@ -14,16 +14,16 @@
         <TabItem Header="Обучение">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="207*"/>
-                    <ColumnDefinition Width="247*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="131*"/>
+                    <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
                 <Button Content="Обучить" Grid.Column="2" Margin="5"/>
-                <TabControl Grid.Row="1" Grid.ColumnSpan="3" AlternationCount="99">
+                <TabControl Grid.Row="1" Grid.ColumnSpan="3" AlternationCount="{Binding Images.Count, Mode=OneWay}">
                     <TabControl.Resources>
                         <CollectionViewSource x:Key="DigitsCollection" Source="{Binding Images, Mode=OneWay}"/>
                         <DataTemplate DataType="{x:Type local:ImageCollection}">
@@ -59,7 +59,7 @@
                                         <RowDefinition Height="1*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Button Content="Добавить MNIST" Click="AddMNIST" Margin="5" Grid.ColumnSpan="2"/>
+                                    <Button Content="Добавить MNIST" Click="AddMnist" Margin="5" Grid.ColumnSpan="2"/>
                                     <Border Margin="5" Grid.Row="1" BorderBrush="#FFABADB3" BorderThickness="1">
                                         <Canvas x:Name="AddCanvas" ClipToBounds="True" MouseDown="AddCanvas_MouseDown" MouseMove="AddCanvas_MouseMove" MouseUp="AddCanvas_MouseUp" Background="White"/>
                                     </Border>
@@ -81,7 +81,7 @@
             </Grid>
         </TabItem>
         <TabItem Header="Распознавание">
-
+            
         </TabItem>
     </TabControl>
 </Window>

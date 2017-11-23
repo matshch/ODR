@@ -1,16 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Forms = System.Windows.Forms;
 
 namespace ODR
 {
     public partial class MainWindow : Window
     {
         public const int DIGITS_COUNT = 10;
+        public const int MNIST_LIMIT = 100;
 
         public ObservableCollection<ImageCollection> Images { get; set; } = new ObservableCollection<ImageCollection>();
 
@@ -106,9 +111,59 @@ namespace ODR
             AddCanvas_CleanClick(null, null);
         }
 
-        private void AddMNIST(object sender, RoutedEventArgs e)
+        private void AddMnist(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var full = MessageBox.Show(this,
+                    "Вы хотите загрузить MNIST целиком? Это займёт некоторое время.\nЕсли вы выберите \"Нет\", то будет загружена лишь часть набора данных.",
+                    Title,
+                    MessageBoxButton.YesNoCancel,
+                    MessageBoxImage.Question);
+            bool fullLoad;
+            if (full == MessageBoxResult.Yes)
+            {
+                fullLoad = true;
+            }
+            else if (full == MessageBoxResult.No)
+            {
+                fullLoad = false;
+            }
+            else
+            {
+                return;
+            }
+            var dlg = new Forms.FolderBrowserDialog();
+            Forms.DialogResult result = dlg.ShowDialog(this.GetIWin32Window());
+            if (result != Forms.DialogResult.OK)
+            {
+                return;
+            }
+            var di = new DirectoryInfo(dlg.SelectedPath);
+            foreach (DirectoryInfo d in di.GetDirectories())
+            {
+                var name = d.Name;
+                if (name.Length != 1)
+                {
+                    continue;
+                }
+                
+                if (name[0] < '0' || name[0] > '9')
+                {
+                    continue;
+                }
+
+                var index = name[0] - '0';
+                var collection = Images[index];
+                IEnumerable<FileInfo> files = d.GetFiles();
+                if (!fullLoad)
+                {
+                    files = files.Take(MNIST_LIMIT);
+                }
+                foreach (FileInfo f in files)
+                {
+                    var img = new BitmapImage(new Uri(f.FullName));
+                    collection.Add(img);
+                }
+            }
         }
     }
 }
